@@ -147,7 +147,7 @@ class ContactOverlay extends StatelessWidget {
     final Offset pos = contactOrbitPosition(
       index: i,
       count: kContactLinks.length,
-      time: sim.time,
+      time: sim.ambientTime,
       center: center,
       rx: rx,
       ry: ry,

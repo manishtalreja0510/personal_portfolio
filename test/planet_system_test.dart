@@ -82,6 +82,24 @@ void main() {
       expect(ps.tapAt(const Offset(5, 5), t), isFalse);
     });
 
+    test('reduced motion parks both comets on screen, still tappable', () {
+      final ps = _system();
+      final double t = _focusT(1);
+      // Whatever the wall-time, parked comets are present and lit.
+      for (final time in [0.0, 7.3, 16.9]) {
+        ps.update(dt: 1 / 60, t: t, time: time, reduceMotion: true);
+        for (final c in ps.comets) {
+          expect(c.active, isTrue);
+          expect(c.alpha, greaterThan(0.5));
+          expect(c.x, inInclusiveRange(0, _desktop.width));
+          expect(c.y, inInclusiveRange(0, _desktop.height));
+        }
+      }
+      final c = ps.comets[1];
+      expect(ps.tapAt(Offset(c.x, c.y), t), isTrue);
+      expect(ps.pinnedComet, 1);
+    });
+
     test('comets cruise through on wall-time and can be pinned', () {
       final ps = _system();
       final double t = _focusT(1);

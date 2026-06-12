@@ -62,6 +62,8 @@ class UniversePainter extends CustomPainter {
     if (t > Era.bigBang.start && bp < 1) {
       _paintFlash(canvas, size, bp);
     }
+    // (Flash flicker and singularity pulse ride the ambient clock,
+    // so reduced motion stills them without hiding them.)
 
     _paintSingularity(canvas, size, t);
 
@@ -108,7 +110,7 @@ class UniversePainter extends CustomPainter {
         ..setFloat(2, center.dx)
         ..setFloat(3, center.dy)
         ..setFloat(4, bp)
-        ..setFloat(5, sim.time);
+        ..setFloat(5, sim.ambientTime);
       canvas.drawRect(
           bounds,
           Paint()
@@ -164,7 +166,7 @@ class UniversePainter extends CustomPainter {
     if (swallow <= 0) return;
 
     final ui.Offset c = sim.bangCenter;
-    final double time = sim.time;
+    final double time = sim.ambientTime;
     final double buildup = smoothstep(Era.singularity.progress(t));
     final double pulse =
         0.78 + 0.16 * math.sin(time * 2.1) + 0.06 * math.sin(time * 5.3);

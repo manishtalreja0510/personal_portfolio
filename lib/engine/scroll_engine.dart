@@ -24,7 +24,9 @@ class UniverseClock extends ValueNotifier<double> {
   static const double pages = 18.0;
 
   /// Chase rate per second: higher snaps faster, lower floats more.
-  static const double _chaseRate = 6.0;
+  /// The simulation raises it under reduced motion so content lands
+  /// quickly instead of gliding.
+  double chaseRate = 6.0;
 
   final ScrollController scrollController = ScrollController();
   double _target = 0.0;
@@ -39,7 +41,7 @@ class UniverseClock extends ValueNotifier<double> {
       if (value != _target) value = _target;
       return;
     }
-    value += gap * (1 - math.exp(-_chaseRate * dt));
+    value += gap * (1 - math.exp(-chaseRate * dt));
   }
 
   /// Smooth-scrolls the page so the clock lands on the era's center.

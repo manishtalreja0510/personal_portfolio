@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import '../data/portfolio_data.dart';
 import 'career_stream.dart';
+import 'easter_egg.dart';
 import 'eras.dart';
 import 'planet_system.dart';
 import 'quality.dart';
@@ -23,6 +24,18 @@ const int kSpriteSize = 64;
 /// detonates here, and the hero name assembles here — one continuous
 /// place in space across all three beats.
 const double kBangCenterYFraction = 0.42;
+
+/// Integer RGB lerp (no alpha), shared by every particle field.
+int lerpRgb(int a, int b, double t) {
+  final int r =
+      (((a >> 16) & 0xFF) + (((b >> 16) & 0xFF) - ((a >> 16) & 0xFF)) * t)
+          .round();
+  final int g =
+      (((a >> 8) & 0xFF) + (((b >> 8) & 0xFF) - ((a >> 8) & 0xFF)) * t)
+          .round();
+  final int bl = ((a & 0xFF) + ((b & 0xFF) - (a & 0xFF)) * t).round();
+  return (r << 16) | (g << 8) | bl;
+}
 
 /// A soft-glow disc: hard bright core easing into a wide halo.
 /// Tinted per-particle at draw time (atlas colors + additive paint).
@@ -146,6 +159,9 @@ class StarField {
     required double dt,
     required double fieldAlpha,
     ui.Offset? pointer,
+    double eggBlend = 0,
+    Float32List? eggTargets,
+    int eggCount = 0,
   }) {
     final bool hasPointer = pointer != null;
     final double damp = math.exp(-_dampRate * dt);
@@ -195,16 +211,33 @@ class StarField {
         _vy[i] = vy;
       }
 
-      final double s = _radius[i] * 5.0 / kSpriteSize;
+      double cx = rx + dx;
+      double cy = ry + dy;
+      double s = _radius[i] * 5.0 / kSpriteSize;
+      int rgb = _rgb[i];
+      final double tw = 0.75 + 0.25 * math.sin(time * _twFreq[i] + _twPhase[i]);
+      double brightness = _alpha[i] * tw;
+
+      // Easter egg: the chosen stars converge on the Flutter logo,
+      // everyone turns Flutter-blue, the constellation glows.
+      if (eggBlend > 0) {
+        if (i < eggCount && eggTargets != null) {
+          cx += (eggTargets[i * 2] - cx) * eggBlend;
+          cy += (eggTargets[i * 2 + 1] - cy) * eggBlend;
+          s *= 1 + 0.7 * eggBlend;
+          brightness += (1 - brightness) * eggBlend;
+        }
+        rgb = lerpRgb(rgb, kFlutterBlue, eggBlend * 0.9);
+      }
+
       final int j = i * 4;
       rst[j] = s;
       rst[j + 1] = 0;
-      rst[j + 2] = rx + dx - s * half;
-      rst[j + 3] = ry + dy - s * half;
+      rst[j + 2] = cx - s * half;
+      rst[j + 3] = cy - s * half;
 
-      final double tw = 0.75 + 0.25 * math.sin(time * _twFreq[i] + _twPhase[i]);
-      final int a = (255 * _alpha[i] * tw * fieldAlpha).round().clamp(0, 255);
-      colors[i] = (a << 24) | _rgb[i];
+      final int a = (255 * brightness * fieldAlpha).round().clamp(0, 255);
+      colors[i] = (a << 24) | rgb;
     }
   }
 }
@@ -252,17 +285,6 @@ class BurstField {
 
   final Float32List _dirX, _dirY, _speed, _radius, _twFreq, _twPhase;
   final Int32List _rgb;
-
-  static int _lerpRgb(int a, int b, double t) {
-    final int r =
-        (((a >> 16) & 0xFF) + (((b >> 16) & 0xFF) - ((a >> 16) & 0xFF)) * t)
-            .round();
-    final int g =
-        (((a >> 8) & 0xFF) + (((b >> 8) & 0xFF) - ((a >> 8) & 0xFF)) * t)
-            .round();
-    final int bl = ((a & 0xFF) + ((b & 0xFF) - (a & 0xFF)) * t).round();
-    return (r << 16) | (g << 8) | bl;
-  }
 
   /// Writes atlas draw data for scroll-time [t]. [nameTargets] are
   /// offsets relative to [center] (from [sampleTextPoints]); null or
@@ -312,7 +334,7 @@ class BurstField {
         // varied debris sizes read as chaos, uniform dots read as type.
         final double radBlend = _radius[i] + (1.5 - _radius[i]) * asm * 0.75;
         sizeMul = (0.9 + 0.4 * asm) * radBlend / _radius[i];
-        rgb = _lerpRgb(rgb, 0xEAF1FF, asm);
+        rgb = lerpRgb(rgb, 0xEAF1FF, asm);
       } else {
         final double flicker =
             0.8 + 0.2 * math.sin(time * _twFreq[i] * 3 + _twPhase[i]);
@@ -402,6 +424,29 @@ class UniverseSimulation extends ChangeNotifier {
     contactBurstStart = time;
   }
 
+  // --- Easter egg state ---
+  double _eggStart = -100;
+  double eggBlend = 0;
+  Float32List? _eggTargets;
+  int _eggCount = 0;
+
+  /// Typing "flutter" / tapping the singularity five times: the
+  /// starfield turns Flutter-blue and forms the logo for ~3 seconds.
+  void triggerEasterEgg() {
+    if (time - _eggStart < 4.2) return; // let the current one finish
+    final StarField? f = field;
+    if (f == null || viewport.isEmpty) return;
+    _eggStart = time;
+    _eggCount = math.min(150, f.count);
+    final points = sampleFlutterLogo(size: viewport, count: _eggCount);
+    final targets = Float32List(_eggCount * 2);
+    for (int i = 0; i < points.length && i < _eggCount; i++) {
+      targets[i * 2] = points[i].dx;
+      targets[i * 2 + 1] = points[i].dy;
+    }
+    _eggTargets = targets;
+  }
+
   /// The star under the pointer / pinned by tap, for the detail card.
   /// Widgets listen to this, not to the whole simulation.
   final ValueNotifier<SkillHover?> skillHover = ValueNotifier(null);
@@ -410,13 +455,45 @@ class UniverseSimulation extends ChangeNotifier {
 
   ui.Size viewport = ui.Size.zero;
 
-  /// Cursor (desktop) or touch point (mobile) in screen coordinates;
-  /// null when nothing is near the glass.
-  ui.Offset? pointer;
+  /// Adaptive particle budgets: steps down on sustained jank.
+  final QualityController quality = QualityController();
 
-  /// Wall-clock seconds since attach — drives ambient motion only
-  /// (twinkle, idle drift). Scroll-time `t` drives everything else.
+  /// Cursor (desktop) or touch point (mobile) in screen coordinates;
+  /// null when nothing is near the glass. Setting it pokes the
+  /// simulation awake so hover effects run even under the idle gate.
+  ui.Offset? get pointer => _pointerPos;
+  set pointer(ui.Offset? value) {
+    if (value == _pointerPos) return;
+    _pointerPos = value;
+    poke();
+  }
+
+  ui.Offset? _pointerPos;
+
+  /// Frames of forced liveness after an interaction, so dt-eased
+  /// animations (flares, zoom, gravity decay) finish before the
+  /// idle gate stops the world again.
+  int _settleFrames = 0;
+
+  void poke([int frames = 120]) {
+    if (frames > _settleFrames) _settleFrames = frames;
+  }
+
+  /// Wall-clock seconds since attach. Drives one-shot effects that
+  /// must keep working under reduced motion (easter egg envelope,
+  /// click burst).
   double time = 0;
+
+  /// The ambient clock: advances only while motion is enabled.
+  /// Twinkle, idle drift, orbiting moons, pulsar beams, flowing
+  /// motes, contact orbits — everything autonomous reads this, so
+  /// flipping [reduceMotion] freezes the whole universe's ambient
+  /// life with a single variable.
+  double ambientTime = 0;
+
+  /// The accessibility switch. Defaults to the OS preference
+  /// (prefers-reduced-motion) via the page; toggleable in the UI.
+  final ValueNotifier<bool> reduceMotion = ValueNotifier(false);
 
   /// Global starfield opacity: 0 before the Big Bang (stars don't
   /// exist yet), ramping to 1 as the universe ignites.
@@ -424,10 +501,14 @@ class UniverseSimulation extends ChangeNotifier {
 
   Ticker? _ticker;
   Duration _lastTick = Duration.zero;
+  double _lastTickT = -1;
 
   void attach(TickerProvider vsync) {
     createGlowSprite().then((image) => sprite = image);
     _loadFlashShader();
+    // Toggling motion changes what's on screen (comets park, hint
+    // stills) — stay live long enough to show it.
+    reduceMotion.addListener(() => poke(240));
     _ticker = vsync.createTicker(_onTick)..start();
   }
 
@@ -455,7 +536,21 @@ class UniverseSimulation extends ChangeNotifier {
     viewport = size;
     bangCenter =
         ui.Offset(size.width / 2, size.height * kBangCenterYFraction);
-    final int budget = starBudget(size);
+    _rebuildFields();
+    skills = SkillStars(constellations: constellations, size: size);
+    _hoverIndex = null;
+    _pinnedIndex = null;
+    planets =
+        PlanetSystem(projects: projects, packages: packages, size: size);
+    career = CareerStream(roles: roles, size: size);
+    poke();
+  }
+
+  /// (Re)allocates particle fields for the current viewport and
+  /// quality tier. Seeded generation keeps star N's position stable,
+  /// so a tier drop thins the sky without rearranging it.
+  void _rebuildFields() {
+    final int budget = (starBudget(viewport) * quality.tier).round();
     if (field?.count != budget) {
       field = StarField(count: budget);
       rstTransforms = Float32List(budget * 4);
@@ -472,17 +567,12 @@ class UniverseSimulation extends ChangeNotifier {
       burstColors = Int32List(burstBudget);
       burstRects = _makeSpriteRects(burstBudget);
     }
-    skills = SkillStars(constellations: constellations, size: size);
-    _hoverIndex = null;
-    _pinnedIndex = null;
-    planets =
-        PlanetSystem(projects: projects, packages: packages, size: size);
-    career = CareerStream(roles: roles, size: size);
   }
 
   /// Tap dispatch from the page (raw pointer taps, since the scroll
   /// surface owns gestures). Currently: pin/unpin a skill star.
   void tapAt(ui.Offset position) {
+    poke(180);
     final PlanetSystem? planetary = planets;
     if (planetary != null &&
         PlanetSystem.eraAlpha(clock.value) > 0 &&
@@ -520,20 +610,42 @@ class UniverseSimulation extends ChangeNotifier {
   }
 
   void _onTick(Duration elapsed) {
-    final double dt =
-        ((elapsed - _lastTick).inMicroseconds / 1e6).clamp(0.0, 1 / 15);
+    final double rawDt = (elapsed - _lastTick).inMicroseconds / 1e6;
+    final double dt = rawDt.clamp(0.0, 1 / 15);
     _lastTick = elapsed;
     time += dt;
+    final bool rm = reduceMotion.value;
+    if (!rm) ambientTime += dt;
+    clock.chaseRate = rm ? 18.0 : 6.0;
     clock.tick(dt);
 
     final double t = clock.value;
+    // The egg summons stars even before the Big Bang (a glimpse of
+    // the universe to come), so it works from the landing screen.
+    eggBlend = eggBlendAt(time - _eggStart);
+
+    // Idle gate: under reduced motion, with the scroll at rest, no
+    // one-shot effect playing, and no recent interaction, the
+    // universe is a still image — skip physics and repaint entirely.
+    final bool clockMoved = t != _lastTickT;
+    _lastTickT = t;
+    final bool oneShots =
+        eggBlend > 0 || (time - contactBurstStart) < 1.6;
+    final bool live = !rm || clockMoved || oneShots || _settleFrames > 0;
+    if (_settleFrames > 0) _settleFrames--;
+    if (!live) return;
+
+    // Frame-time probe — only live frames carry GPU signal.
+    if (quality.sample(rawDt)) _rebuildFields();
+
     // The Present Moment is a calmer region of space: the starfield
     // dims as the journey settles, and stays soft into the finale.
     final double calm = (1 -
             0.45 * Era.present.presence(t) -
             0.25 * Era.newUniverse.presence(t))
         .clamp(0.3, 1.0);
-    final double alpha = smoothstep(phase(t, 0.055, 0.16)) * calm;
+    final double alpha = math.max(
+        smoothstep(phase(t, 0.055, 0.16)) * calm, eggBlend * 0.9);
     final bool starsLive = alpha > 0 || fieldAlpha > 0;
     fieldAlpha = alpha;
 
@@ -544,10 +656,13 @@ class UniverseSimulation extends ChangeNotifier {
         spriteColors,
         size: viewport,
         t: t,
-        time: time,
+        time: ambientTime,
         dt: dt,
         fieldAlpha: alpha,
-        pointer: pointer,
+        pointer: rm ? null : pointer, // no cursor gravity when calm
+        eggBlend: eggBlend,
+        eggTargets: _eggTargets,
+        eggCount: _eggCount,
       );
     }
 
@@ -561,21 +676,26 @@ class UniverseSimulation extends ChangeNotifier {
         burstColors,
         size: viewport,
         t: t,
-        time: time,
+        time: ambientTime,
         center: bangCenter,
         nameTargets: nameTargets,
       );
     }
     burstLive = bLive;
 
-    final double bp = Era.bigBang.progress(t);
-    final double shakeAmp =
-        16 * math.exp(-bp * 7) * smoothstep(phase(bp, 0.0, 0.05));
-    shakeX = shakeAmp * math.sin(time * 39);
-    shakeY = 0.7 * shakeAmp * math.cos(time * 27);
+    if (rm) {
+      shakeX = 0;
+      shakeY = 0;
+    } else {
+      final double bp = Era.bigBang.progress(t);
+      final double shakeAmp =
+          16 * math.exp(-bp * 7) * smoothstep(phase(bp, 0.0, 0.05));
+      shakeX = shakeAmp * math.sin(time * 39);
+      shakeY = 0.7 * shakeAmp * math.cos(time * 27);
+    }
 
     _tickSkills(dt, t);
-    planets?.update(dt: dt, t: t, time: time);
+    planets?.update(dt: dt, t: t, time: ambientTime, reduceMotion: rm);
     if (t > 0.62 && t < 0.90) career?.update(t: t);
 
     notifyListeners();
@@ -613,6 +733,7 @@ class UniverseSimulation extends ChangeNotifier {
 
   @override
   void dispose() {
+    reduceMotion.dispose();
     skillHover.dispose();
     _ticker?.dispose();
     super.dispose();

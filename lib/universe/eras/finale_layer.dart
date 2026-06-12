@@ -36,7 +36,7 @@ class FinaleLayer {
     final double t = sim.clock.value;
     final double aPresent = presentAlpha(t);
     if (aPresent > 0.002) {
-      _paintKnight(canvas, size, sim.time, t, aPresent);
+      _paintKnight(canvas, size, sim.ambientTime, t, aPresent);
     }
     final double aContact = contactAlpha(t);
     if (aContact > 0.002) {
@@ -115,7 +115,9 @@ class FinaleLayer {
   void _paintNewUniverse(
       ui.Canvas canvas, ui.Size size, UniverseSimulation sim, double a) {
     final ui.Offset c = newSingularityCenter(size);
-    final double time = sim.time;
+    // Ambient clock: pulses and rings still under reduced motion.
+    // The click burst below stays on real time so it always plays.
+    final double time = sim.ambientTime;
     final orbit = contactOrbitRadii(size);
 
     // Faint orbital guide the contact bodies ride on.

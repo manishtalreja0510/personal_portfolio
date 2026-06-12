@@ -3,8 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../data/portfolio_data.dart';
 import '../../engine/eras.dart';
-import '../../engine/particle_engine.dart' show kBangCenterYFraction;
-import '../../engine/scroll_engine.dart';
+import '../../engine/particle_engine.dart';
 
 /// Style of the particle-assembled hero name. The same style is used
 /// to rasterize assembly targets, so it lives here as the single
@@ -20,9 +19,9 @@ TextStyle heroNameStyle(double viewportWidth) => GoogleFonts.orbitron(
 /// and scroll hint, then the hero subtitle once the name assembles.
 /// The name itself is pure particles — only its subtitle is a widget.
 class HeroOverlay extends StatelessWidget {
-  const HeroOverlay({super.key, required this.clock});
+  const HeroOverlay({super.key, required this.sim});
 
-  final UniverseClock clock;
+  final UniverseSimulation sim;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class HeroOverlay extends StatelessWidget {
         final bool compact = size.width < 700;
 
         return ValueListenableBuilder<double>(
-          valueListenable: clock,
+          valueListenable: sim.clock,
           builder: (context, t, _) {
             final double sp = Era.singularity.progress(t);
             final double bp = Era.bigBang.progress(t);
@@ -78,7 +77,11 @@ class HeroOverlay extends StatelessWidget {
                       bottom: 84,
                       child: Opacity(
                         opacity: hintA,
-                        child: const _PulsingHint(),
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: sim.reduceMotion,
+                          builder: (context, reduced, _) =>
+                              _PulsingHint(animate: !reduced),
+                        ),
                       ),
                     ),
                   if (titleA > 0.001)
@@ -127,9 +130,12 @@ class _Entrance extends StatelessWidget {
   }
 }
 
-/// "Scroll to begin time" with a slow breathing pulse.
+/// "Scroll to begin time" with a slow breathing pulse — held steady
+/// under reduced motion.
 class _PulsingHint extends StatefulWidget {
-  const _PulsingHint();
+  const _PulsingHint({required this.animate});
+
+  final bool animate;
 
   @override
   State<_PulsingHint> createState() => _PulsingHintState();
@@ -140,7 +146,24 @@ class _PulsingHintState extends State<_PulsingHint>
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1700),
-  )..repeat(reverse: true);
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(_PulsingHint oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.animate && _controller.isAnimating) {
+      _controller.stop();
+      _controller.value = 1.0;
+    }
+  }
 
   @override
   void dispose() {
