@@ -1,12 +1,16 @@
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show KeyDownEvent, KeyEvent;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/portfolio_data.dart';
 import '../engine/eras.dart';
 import '../engine/particle_engine.dart';
 import '../engine/scroll_engine.dart';
 import '../engine/text_particles.dart';
+import '../ui/cosmic_scrubber.dart';
+import '../ui/motion_toggle.dart';
 import 'eras/civilizations_overlay.dart';
 import 'eras/contact_overlay.dart';
 import 'eras/hero_overlay.dart';
@@ -29,15 +33,74 @@ class _UniversePageState extends State<UniversePage>
     with SingleTickerProviderStateMixin {
   late final UniverseClock _clock;
   late final UniverseSimulation _sim;
+  final FocusNode _focusNode = FocusNode();
   Size _heroSize = Size.zero;
   Offset _downPosition = Offset.zero;
   int _downTimeMs = 0;
+  String _typed = '';
+  final List<int> _singularityTapsMs = [];
+
+  bool _appliedSystemMotionPref = false;
+  static const String _kMotionPrefKey = 'reduceMotion';
 
   @override
   void initState() {
     super.initState();
     _clock = UniverseClock();
     _sim = UniverseSimulation(_clock)..attach(this);
+    _restoreMotionPref();
+  }
+
+  /// Precedence: a stored choice beats the OS default (which
+  /// didChangeDependencies applies first, synchronously). Only
+  /// changes made after restore — i.e. explicit toggles — persist.
+  Future<void> _restoreMotionPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    final bool? stored = prefs.getBool(_kMotionPrefKey);
+    if (stored != null) _sim.reduceMotion.value = stored;
+    _sim.reduceMotion.addListener(() {
+      prefs.setBool(_kMotionPrefKey, _sim.reduceMotion.value);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Honor prefers-reduced-motion once on startup; the toggle can
+    // override it afterwards.
+    if (!_appliedSystemMotionPref) {
+      _appliedSystemMotionPref = true;
+      if (MediaQuery.of(context).disableAnimations) {
+        _sim.reduceMotion.value = true;
+      }
+    }
+  }
+
+  /// Desktop easter egg: a rolling buffer of typed characters.
+  void _handleKey(KeyEvent event) {
+    if (event is! KeyDownEvent) return;
+    final String? ch = event.character;
+    if (ch == null || ch.isEmpty) return;
+    _typed = (_typed + ch.toLowerCase());
+    if (_typed.length > 12) _typed = _typed.substring(_typed.length - 12);
+    if (_typed.endsWith('flutter')) {
+      _typed = '';
+      _sim.triggerEasterEgg();
+    }
+  }
+
+  /// Mobile easter egg: five taps on the landing singularity.
+  void _countSingularityTap(Offset position) {
+    if (_clock.value >= Era.bigBang.start) return;
+    if ((position - _sim.bangCenter).distance > 90) return;
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    _singularityTapsMs.add(now);
+    _singularityTapsMs.removeWhere((ms) => now - ms > 4000);
+    if (_singularityTapsMs.length >= 5) {
+      _singularityTapsMs.clear();
+      _sim.triggerEasterEgg();
+    }
   }
 
   /// Manual tap detection on the raw pointer stream: the scroll
@@ -49,6 +112,7 @@ class _UniversePageState extends State<UniversePage>
         DateTime.now().millisecondsSinceEpoch - _downTimeMs;
     if (elapsed < 350 &&
         (event.localPosition - _downPosition).distance < 14) {
+      _countSingularityTap(event.localPosition);
       _sim.tapAt(event.localPosition);
     }
   }
@@ -85,6 +149,7 @@ class _UniversePageState extends State<UniversePage>
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _sim.dispose();
     _clock.dispose();
     super.dispose();
@@ -100,8 +165,13 @@ class _UniversePageState extends State<UniversePage>
           _maybeRegenHeroTargets(constraints.biggest);
           // Raw pointer tracking feeds cursor gravity: hover/drag on
           // desktop, touch points on mobile. The Listener wraps the
-          // scroll surface, so scrolling and gravity coexist.
-          return Listener(
+          // scroll surface, so scrolling and gravity coexist. The
+          // KeyboardListener above it catches "flutter" being typed.
+          return KeyboardListener(
+            focusNode: _focusNode,
+            autofocus: true,
+            onKeyEvent: _handleKey,
+            child: Listener(
             onPointerHover: (e) => _sim.pointer = e.localPosition,
             onPointerMove: (e) => _sim.pointer = e.localPosition,
             onPointerDown: (e) {
@@ -126,16 +196,9 @@ class _UniversePageState extends State<UniversePage>
                       willChange: true,
                     ),
                   ),
-                  // Era scaffolding (phase a) — replaced era by era.
-                  RepaintBoundary(
-                    child: ValueListenableBuilder<double>(
-                      valueListenable: _clock,
-                      builder: (context, t, _) => _EraPlaceholderView(t: t),
-                    ),
-                  ),
                   // Singularity caption, scroll hint, hero subtitle.
                   RepaintBoundary(
-                    child: HeroOverlay(clock: _clock),
+                    child: HeroOverlay(sim: _sim),
                   ),
                   // Stellar era: heading, cosmic facts, skill cards.
                   RepaintBoundary(
@@ -175,107 +238,26 @@ class _UniversePageState extends State<UniversePage>
                   RepaintBoundary(
                     child: ContactOverlay(sim: _sim),
                   ),
+                  // The cosmic ruler — the site's only navigation.
+                  Positioned(
+                    left: 24,
+                    right: 24,
+                    bottom: 12 + MediaQuery.paddingOf(context).bottom,
+                    height: 64,
+                    child: CosmicScrubber(clock: _clock),
+                  ),
+                  // Accessibility: the reduce-motion switch.
+                  Positioned(
+                    top: 14 + MediaQuery.paddingOf(context).top,
+                    right: 16,
+                    child: MotionToggle(sim: _sim),
+                  ),
                 ],
               ),
             ),
+            ),
           );
         },
-      ),
-    );
-  }
-}
-
-/// Temporary chrome: the debug HUD and the proto-scrubber. The
-/// scrubber becomes the cosmic-ruler navigation in phase (h); the
-/// HUD disappears entirely once tuning is done.
-class _EraPlaceholderView extends StatelessWidget {
-  const _EraPlaceholderView({required this.t});
-
-  final double t;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _hud(Era.at(t)),
-        _protoScrubber(),
-      ],
-    );
-  }
-
-  // Temporary debug readout — removed once the real eras land.
-  Widget _hud(Era current) {
-    return Positioned(
-      left: 16,
-      top: 16,
-      child: Text(
-        't ${t.toStringAsFixed(3)}  ·  ${current.label}  ·  '
-        '${(current.progress(t) * 100).toStringAsFixed(0)}%',
-        style: GoogleFonts.spaceGrotesk(
-          fontSize: 12,
-          color: Colors.white.withValues(alpha: 0.3),
-        ),
-      ),
-    );
-  }
-
-  /// Minimal timeline bar with era tick marks — grows into the
-  /// cosmic-ruler scrubber in phase (h).
-  Widget _protoScrubber() {
-    return Positioned(
-      left: 32,
-      right: 32,
-      bottom: 28,
-      child: SizedBox(
-        height: 10,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double w = constraints.maxWidth;
-            return Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned(
-                  top: 4,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 2,
-                    color: Colors.white.withValues(alpha: 0.12),
-                  ),
-                ),
-                for (final era in Era.values)
-                  Positioned(
-                    top: 2,
-                    left: era.start * w,
-                    child: Container(
-                      width: 2,
-                      height: 6,
-                      color: Colors.white.withValues(alpha: 0.25),
-                    ),
-                  ),
-                Positioned(
-                  top: 0,
-                  left: (t * w - 5).clamp(0.0, w - 10),
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.85),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

@@ -41,14 +41,14 @@ class PlanetaryLayer {
     for (int k = 0; k < ps.states.length; k++) {
       final PlanetState s = ps.states[k];
       if (s.alpha <= 0.01) continue;
-      _paintPlanet(canvas, ps.specs[k], s, sim.time,
+      _paintPlanet(canvas, ps.specs[k], s, sim.ambientTime,
           dimMoons: ps.zoomEase, zoomed: ps.zoomIndex == k);
     }
 
     for (int c = 0; c < ps.comets.length; c++) {
       final CometState comet = ps.comets[c];
       if (!comet.active) continue;
-      _paintComet(canvas, comet, ps.packages[c], sim.time);
+      _paintComet(canvas, comet, ps.packages[c], sim.ambientTime);
     }
   }
 

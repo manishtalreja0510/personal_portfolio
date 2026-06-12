@@ -36,7 +36,7 @@ class CivilizationsLayer {
     if (stream == null) return;
     final double a = CareerStream.eraAlpha(sim.clock.value);
     if (a <= 0.002) return;
-    final double time = sim.time;
+    final double time = sim.ambientTime;
 
     canvas.save();
     canvas.translate(-stream.cameraX, stream.driftY);

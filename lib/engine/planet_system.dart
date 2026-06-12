@@ -73,16 +73,23 @@ class PlanetState {
 }
 
 class CometState {
-  CometState(this.startX, this.startY, this.endX, this.endY, this.phase);
+  CometState(this.startX, this.startY, this.endX, this.endY, this.phase) {
+    final double len =
+        math.sqrt(math.pow(endX - startX, 2) + math.pow(endY - startY, 2));
+    dirX = (endX - startX) / len;
+    dirY = (endY - startY) / len;
+  }
 
   final double startX, startY, endX, endY;
 
   /// Offset into the shared period, seconds.
   final double phase;
 
+  /// Flight direction — constant per trajectory.
+  late final double dirX, dirY;
+
   bool active = false;
   double x = 0, y = 0;
-  double dirX = 0, dirY = 0;
   double alpha = 0;
 }
 
@@ -141,6 +148,7 @@ class PlanetSystem {
     required double dt,
     required double t,
     required double time,
+    bool reduceMotion = false,
   }) {
     final double a = eraAlpha(t);
     if (a <= 0) {
@@ -189,24 +197,35 @@ class PlanetSystem {
       s.alpha = a * (1 - smoothstep(phase(s.offset.abs(), 0.55, 0.85)));
     }
 
+    if (reduceMotion) {
+      // No streaking under reduced motion: the comets park as
+      // steady glowing bodies, still labeled and tappable.
+      const List<ui.Offset> parked = [
+        ui.Offset(0.18, 0.16),
+        ui.Offset(0.82, 0.13),
+      ];
+      for (int i = 0; i < comets.length; i++) {
+        final CometState c = comets[i];
+        final ui.Offset spot = parked[i % parked.length];
+        c.x = spot.dx * _size.width;
+        c.y = spot.dy * _size.height;
+        c.alpha = a * 0.9;
+        c.active = true;
+      }
+      return;
+    }
+
     for (final c in comets) {
       final double u =
           ((time + c.phase) % _cometPeriod) / _cometPeriod;
       if (u >= 0.5) {
         c.active = false;
-        if (pinnedComet == comets.indexOf(c)) {
-          // Card stays; only the streak ends.
-        }
         continue;
       }
       final double along = u / 0.5;
       c.x = (c.startX + (c.endX - c.startX) * along) * _size.width;
       c.y = (c.startY + (c.endY - c.startY) * along) * _size.height +
           math.sin(time * 1.3 + c.phase) * 6;
-      final double len = math.sqrt(math.pow(c.endX - c.startX, 2) +
-          math.pow(c.endY - c.startY, 2));
-      c.dirX = (c.endX - c.startX) / len;
-      c.dirY = (c.endY - c.startY) / len;
       c.alpha = a *
           smoothstep(phase(along, 0.0, 0.12)) *
           (1 - smoothstep(phase(along, 0.88, 1.0)));

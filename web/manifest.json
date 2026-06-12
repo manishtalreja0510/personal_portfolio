@@ -1,12 +1,12 @@
 {
-    "name": "aiportfoliowebsite",
-    "short_name": "aiportfoliowebsite",
+    "name": "Manish Talreja — Flutter Developer",
+    "short_name": "Manish",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "description": "The Big Bang Portfolio of Manish Talreja: a scroll-driven journey through a universe of Flutter work.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
