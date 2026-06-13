@@ -8,7 +8,7 @@
 - Role: Mobile Application Developer · Flutter
 - Location: Indore, India
 - Email: manishtalreja0510@gmail.com
-- Website: https://personal-portfolio-universe.web.app/
+- Website: https://manishtalreja.in/
 - GitHub: https://github.com/manishtalreja0510
 - LinkedIn: https://www.linkedin.com/in/manish-talreja/
 - pub.dev: https://pub.dev/publishers/manishtalreja.in/packages

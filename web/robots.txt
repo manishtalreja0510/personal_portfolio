@@ -26,4 +26,4 @@ Allow: /
 User-agent: YouBot
 Allow: /
 
-Sitemap: https://personal-portfolio-universe.web.app/sitemap.xml
+Sitemap: https://manishtalreja.in/sitemap.xml
