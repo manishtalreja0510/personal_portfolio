@@ -44,7 +44,7 @@ class CosmicFact {
 }
 
 const List<CosmicFact> kCosmicFacts = [
-  CosmicFact('4+', 'years of experience'),
+  CosmicFact('5+', 'years of experience'),
   CosmicFact('50+', 'projects delivered'),
   CosmicFact('20+', 'live apps in production'),
 ];
