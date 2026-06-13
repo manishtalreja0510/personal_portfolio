@@ -1,0 +1,81 @@
+# Manish Talreja
+
+> Flutter & Mobile Application Developer based in Indore, India. 5+ years experience, 50+ projects delivered, 20+ live apps in production. Currently a Software Engineer at Zenoti.
+
+## Identity
+
+- Full name: Manish Talreja
+- Role: Mobile Application Developer · Flutter
+- Location: Indore, India
+- Email: manishtalreja0510@gmail.com
+- Website: https://personal-portfolio-universe.web.app/
+- GitHub: https://github.com/manishtalreja0510
+- LinkedIn: https://www.linkedin.com/in/manish-talreja/
+- pub.dev: https://pub.dev/publishers/manishtalreja.in/packages
+
+## Summary
+
+Manish Talreja is a Flutter and mobile application developer with over 5 years of professional experience building cross-platform apps for Android and iOS. He has delivered 50+ projects and shipped 20+ apps currently live on the Play Store and App Store, spanning telehealth, taxi booking, finance, social media, and dating platforms. He is currently a Software Engineer at Zenoti, engineering the Point-of-Sale module for a global wellness SaaS platform. Previously he spent 4 years at Webwiders as a Mobile Application Developer, and started his career as an intern at Aurd Infotech. He holds a B.Tech in Computer Science from RGPV, Bhopal (2021) and has completed a Flutter Development Bootcamp with Dart certification.
+
+## Skills
+
+- Flutter (4+ years, primary expertise)
+- Dart
+- Clean Architecture & Provider state management
+- Firebase (auth, Firestore, storage, analytics)
+- REST APIs (Dio; published open-source package on pub.dev)
+- Google Maps & Geolocation
+- Payment Gateways & In-App Purchases
+- React Native
+- SQL, MongoDB
+- Git
+
+## Experience
+
+### Software Engineer — Zenoti (Feb 2026 – Present)
+Engineering the Point-of-Sale module of Zenoti, a SaaS platform powering salons, spas, and wellness businesses worldwide. Building checkout, billing, and payment flows where reliability and speed are critical.
+
+### Mobile Application Developer — Webwiders (Jan 2022 – Feb 2026)
+Delivered 50+ projects and 20+ live apps across telehealth, taxi booking, finance, social media, and dating. Improved app performance by 30% through clean architecture and Provider-based state management. Mentored junior developers.
+
+### Software Developer Intern — Aurd Infotech (Aug 2021 – Dec 2021)
+Shipped features across mobile app projects, working with designers and backend teams.
+
+## Projects
+
+### Simplix — On-demand home services marketplace
+Flutter app connecting users with vetted professionals for carpentry, locksmithing, cleaning, electrical, and plumbing. Real-time booking and location-based discovery. 18-month build.
+- Play Store: https://play.google.com/store/apps/details?id=com.app.simplix
+- App Store: https://apps.apple.com/us/app/simplix-app/id6702024075
+
+### Learn Play Live — Gamified health & wellness tracking
+Cross-platform health companion for chronic-condition management (diabetes, hypertension). Medication reminders, vitals monitoring, gamified "Garden of Wellness". Built with Flutter, Firebase, Provider.
+- Play Store: https://play.google.com/store/apps/details?id=com.learn_play_live.application
+- App Store: https://apps.apple.com/us/app/learn-play-live-app/id6742144664
+
+### Versus Hot — Truth-or-dare party game
+Cross-platform party game with category-based challenges, in-app purchases, and ads. Published on Google Play.
+- Play Store: https://play.google.com/store/apps/details?id=com.versushot.truthdareapp
+
+### Kamaleon — Secure vault & file hider
+Privacy-first Flutter app hiding sensitive files locally and in the cloud. Decoy content, secure login, cloud sync. 500+ downloads.
+- Play Store: https://play.google.com/store/apps/details?id=com.kamaleon.app
+
+## Open-source packages
+
+### custom_styles_package
+Reusable, responsive Flutter UI widgets — CustomText, CustomButton, CustomTextField — with global style configuration.
+- https://pub.dev/packages/custom_styles_package
+
+### custom_api_services
+Dio-powered Flutter networking package with built-in caching, authentication, error handling, and offline support.
+- https://pub.dev/packages/custom_api_services
+
+## Education
+
+- B.Tech in Computer Science · RGPV, Bhopal · 2021
+- Flutter Development Bootcamp with Dart (certification)
+
+## About
+
+Manish is a Flutter developer who cares about clean architecture, smooth motion, and interfaces that feel effortless. He builds apps people actually use. Outside work he plays cricket and chess.
