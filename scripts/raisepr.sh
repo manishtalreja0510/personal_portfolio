@@ -64,6 +64,9 @@ fi
 
 echo "✅ Merge successful"
 
+echo "🧪 Running tests before push..."
+"$(dirname "$0")/run_tests.sh"
+
 echo "⬆️ Pushing branch..."
 git push -u origin "$BRANCH_NAME"
 

@@ -1,65 +1,198 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="The Big Bang Portfolio of Manish Talreja — Flutter developer with 4+ years, 50+ projects, and 20+ live apps. A scroll-driven journey through a universe of mobile work.">
-  <meta name="theme-color" content="#000000">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Link previews. NOTE: og:image/twitter:image should become
-       absolute URLs (https://yourdomain/og-image.png) once deployed —
-       some scrapers ignore relative paths. -->
+  <!-- Primary SEO -->
+  <title>Manish Talreja — Flutter &amp; Mobile Application Developer | Indore, India</title>
+  <meta name="description" content="Manish Talreja is a Flutter &amp; Mobile Application Developer based in Indore, India — 5+ years experience, 50+ projects delivered, 20+ live apps across telehealth, finance, and social platforms. Currently at Zenoti.">
+  <meta name="keywords" content="Manish Talreja, Flutter developer, mobile application developer, Dart developer, Flutter Indore, Android iOS developer, cross-platform app developer, Zenoti engineer, Flutter freelancer India">
+  <meta name="author" content="Manish Talreja">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://personal-portfolio-universe.web.app/">
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Manish Talreja — Flutter Developer">
-  <meta property="og:description" content="4+ years, 50+ projects, 20+ live apps. A scroll-driven journey through a universe of mobile work.">
-  <meta property="og:image" content="og-image.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Manish Talreja — Flutter Developer">
-  <meta name="twitter:description" content="4+ years, 50+ projects, 20+ live apps. A scroll-driven journey through a universe of mobile work.">
-  <meta name="twitter:image" content="og-image.png">
+  <meta property="og:url" content="https://personal-portfolio-universe.web.app/">
+  <meta property="og:title" content="Manish Talreja — Flutter &amp; Mobile Application Developer">
+  <meta property="og:description" content="5+ years, 50+ projects, 20+ live apps. Flutter developer currently at Zenoti, building production-grade mobile and web apps since 2021.">
+  <meta property="og:image" content="https://personal-portfolio-universe.web.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_IN">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Manish Talreja — Flutter &amp; Mobile Application Developer">
+  <meta name="twitter:description" content="5+ years, 50+ projects, 20+ live apps. Flutter developer currently at Zenoti.">
+  <meta name="twitter:image" content="https://personal-portfolio-universe.web.app/og-image.png">
+
+  <!-- iOS -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Manish Talreja">
+  <meta name="theme-color" content="#000000">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
+  <!-- Favicon & manifest -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>Manish Talreja — Flutter Developer</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- LLM-friendly content index (llms.txt standard) -->
+  <link rel="alternate" type="text/plain" title="LLMs.txt" href="/llms.txt">
+
+  <!-- JSON-LD: Person schema — the primary signal for name searches -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Manish Talreja",
+    "jobTitle": "Mobile Application Developer",
+    "description": "Flutter and mobile application developer with 5+ years of experience, 50+ projects delivered, and 20+ live apps across telehealth, finance, social media, and more.",
+    "url": "https://personal-portfolio-universe.web.app/",
+    "email": "manishtalreja0510@gmail.com",
+    "image": "https://personal-portfolio-universe.web.app/og-image.png",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Indore",
+      "addressCountry": "IN"
+    },
+    "sameAs": [
+      "https://github.com/manishtalreja0510",
+      "https://www.linkedin.com/in/manish-talreja/",
+      "https://pub.dev/publishers/manishtalreja.in/packages",
+      "https://www.instagram.com/manish.talreja.50"
+    ],
+    "knowsAbout": [
+      "Flutter", "Dart", "Mobile Application Development",
+      "Android", "iOS", "Firebase", "REST APIs", "Clean Architecture",
+      "Provider", "React Native", "Google Maps", "Payment Gateways"
+    ],
+    "alumniOf": {
+      "@type": "EducationalOrganization",
+      "name": "RGPV, Bhopal",
+      "description": "B.Tech in Computer Science, 2021"
+    },
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Zenoti",
+      "url": "https://www.zenoti.com"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: WebSite schema — enables sitelinks search box in Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Manish Talreja — Portfolio",
+    "url": "https://personal-portfolio-universe.web.app/",
+    "description": "The Big Bang Portfolio of Manish Talreja: a scroll-driven cinematic journey through a universe of Flutter and mobile development work.",
+    "author": {
+      "@type": "Person",
+      "name": "Manish Talreja"
+    }
+  }
+  </script>
 </head>
 <body style="background:#000">
-  <noscript>
-    <h1>Manish Talreja — Mobile Application Developer (Flutter)</h1>
-    <p>4+ years of experience, 50+ projects delivered, 20+ live apps across
-    telehealth, finance, social media and more. Projects: Simplix, Learn Play
-    Live, Versus Hot, Kamaleon. Contact: manishtalreja0510@gmail.com</p>
-  </noscript>
   <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
+    Flutter CanvasKit renders to a <canvas> element — search crawlers
+    cannot read canvas content. This <noscript> block is the full
+    text representation of the site, crawlable by Google.
   -->
+  <noscript>
+    <main>
+      <h1>Manish Talreja — Flutter &amp; Mobile Application Developer</h1>
+      <p>
+        Flutter and mobile app developer based in Indore, India. 5+ years of experience,
+        50+ projects delivered, 20+ live apps in production across telehealth, finance,
+        taxi booking, social media, and dating platforms.
+        Currently a Software Engineer at Zenoti, engineering the Point-of-Sale module.
+      </p>
+      <p>Contact: <a href="mailto:manishtalreja0510@gmail.com">manishtalreja0510@gmail.com</a></p>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>Flutter — 4+ years building production apps across domains</li>
+        <li>Dart — primary language, clean and idiomatic</li>
+        <li>Provider — state management with 30% performance gains</li>
+        <li>Clean Architecture — layered, testable app structure</li>
+        <li>Firebase — auth, storage, analytics, real-time features</li>
+        <li>REST APIs — including a published Dio package on pub.dev</li>
+        <li>Google Maps &amp; Geolocation — location-based discovery and live tracking</li>
+        <li>Payment Gateways — in-app payment flows</li>
+        <li>In-App Purchases &amp; Ads — monetization</li>
+        <li>React Native — cross-platform breadth beyond Flutter</li>
+        <li>SQL, MongoDB</li>
+        <li>Git</li>
+      </ul>
+
+      <h2>Experience</h2>
+      <article>
+        <h3>Software Engineer — Zenoti (Feb 2026 – Present)</h3>
+        <p>Engineering the Point-of-Sale module of Zenoti, a platform powering salons, spas, and wellness businesses worldwide. Building checkout, billing, and payment flows.</p>
+      </article>
+      <article>
+        <h3>Mobile Application Developer — Webwiders (Jan 2022 – Feb 2026)</h3>
+        <p>Delivered 50+ projects — 20+ live apps — across Telehealth, Taxi Booking, Finance, Social Media, and Dating. Improved overall app performance 30% via clean architecture. Mentored junior developers.</p>
+      </article>
+      <article>
+        <h3>Software Developer Intern — Aurd Infotech (Aug 2021 – Dec 2021)</h3>
+        <p>Shipped features across multiple mobile app projects with designers and backend teams.</p>
+      </article>
+
+      <h2>Projects</h2>
+      <article>
+        <h3>Simplix — On-demand home services marketplace</h3>
+        <p>Connects users with vetted professionals for carpentry, locksmithing, cleaning, electrical and plumbing. Real-time search, booking, and location-based service discovery. Built end-to-end in Flutter over 18 months.</p>
+        <p>
+          <a href="https://play.google.com/store/apps/details?id=com.app.simplix">Play Store</a> ·
+          <a href="https://apps.apple.com/us/app/simplix-app/id6702024075">App Store</a>
+        </p>
+      </article>
+      <article>
+        <h3>Learn Play Live — Gamified health &amp; wellness tracking</h3>
+        <p>Health companion for chronic-condition management (diabetes, high blood pressure). Medication reminders, vitals monitoring, and a gamified "Garden of Wellness". Flutter, Firebase, Provider.</p>
+        <p>
+          <a href="https://play.google.com/store/apps/details?id=com.learn_play_live.application">Play Store</a> ·
+          <a href="https://apps.apple.com/us/app/learn-play-live-app/id6742144664">App Store</a>
+        </p>
+      </article>
+      <article>
+        <h3>Versus Hot — Truth-or-dare party game</h3>
+        <p>Cross-platform party game with category-based challenges, real-time randomizer logic, in-app purchases and ads. Flutter, Firebase, Google Play Services.</p>
+        <p><a href="https://play.google.com/store/apps/details?id=com.versushot.truthdareapp&hl=en_IN">Play Store</a></p>
+      </article>
+      <article>
+        <h3>Kamaleon — Secure vault &amp; file hider</h3>
+        <p>Privacy-first vault that hides sensitive files locally and in the cloud. Decoy content, secure login, cloud sync. 500+ downloads. Flutter, Dart, Cloud Storage.</p>
+        <p><a href="https://play.google.com/store/apps/details?id=com.kamaleon.app&hl=en_IN">Play Store</a></p>
+      </article>
+
+      <h2>Open-source packages (pub.dev)</h2>
+      <ul>
+        <li><a href="https://pub.dev/packages/custom_styles_package">custom_styles_package</a> — Reusable responsive Flutter UI widgets with global style configuration.</li>
+        <li><a href="https://pub.dev/packages/custom_api_services">custom_api_services</a> — Dio-powered networking with caching, auth, error handling, and offline support.</li>
+      </ul>
+
+      <h2>Education</h2>
+      <p>B.Tech in Computer Science · RGPV, Bhopal · 2021</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://github.com/manishtalreja0510">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/manish-talreja/">LinkedIn</a></li>
+        <li><a href="https://pub.dev/publishers/manishtalreja.in/packages">pub.dev</a></li>
+      </ul>
+    </main>
+  </noscript>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
